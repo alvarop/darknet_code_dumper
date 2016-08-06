@@ -15,3 +15,4 @@
 
 `python dump_info.py --openocd_dir /opt/gnuarmeclipse/openocd/0.10.0-201601101000-dev/`
 
+![Example connection](stlink.jpg)
