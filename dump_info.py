@@ -27,18 +27,26 @@ def ascii_str(byte_list):
         byte_str += chr(byte_list[byte])
     return byte_str
 
-def print_contact_info(contact_bytes):
+def print_contact_info(contact_bytes, name=True, key=True, signature=True):
     uid = hex_str(contact_bytes[0:2])
     if uid == 'FFFF':
         return
 
-    print('name:' + ascii_str(contact_bytes[76:88]))
-    print('public key:' + hex_str(contact_bytes[2:27]))
-    print('signature:' + hex_str(contact_bytes[28:76]))
+    if name:
+        print('name:' + ascii_str(contact_bytes[76:88]))
+    
+    if key:
+        print('public key:' + hex_str(contact_bytes[2:27]))
+    
+    if signature:
+        print('signature:' + hex_str(contact_bytes[28:76]))
     print('')
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--openocd_dir', action='store', default='/opt/gnuarmeclipse/openocd/0.10.0-201601101000-dev/', help='Open OCD dev directory')
+parser.add_argument('--no_name', action='store_false', help='don\'t print names')
+parser.add_argument('--no_key', action='store_false', help='don\'t print keys')
+parser.add_argument('--no_signature', action='store_false', help='don\'t print signatures')
 
 args, unknown = parser.parse_known_args()
 
@@ -53,7 +61,13 @@ try:
             contact_bytes = flasher.readMem(FLASH_BASE + SECTOR_SIZE * sector, SECTOR_SIZE)
             
             for contact in range(SECTOR_SIZE/CONTACT_SIZE):
-                print_contact_info(contact_bytes[CONTACT_SIZE * (contact):CONTACT_SIZE * contact + CONTACT_SIZE])
+                start_byte = CONTACT_SIZE * (contact)
+                end_byte = (start_byte + CONTACT_SIZE + 1)
+                print_contact_info(
+                    contact_bytes[start_byte:end_byte],
+                    name=args.no_name,
+                    key=args.no_key,
+                    signature=args.no_signature)
 except:
     raise
 
